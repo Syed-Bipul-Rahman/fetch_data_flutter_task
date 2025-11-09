@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'core/services/cache_service.dart';
+import 'core/di/dependency_injection.dart';
 import 'app.dart';
 
 void main() async {
@@ -9,6 +10,9 @@ void main() async {
 
   // Initialize cache service
   await CacheService().init();
+
+  // Initialize dependency injection
+  await DependencyInjection.init();
 
   // Pre-cache Roboto font - downloads once and caches for offline use
   GoogleFonts.config.allowRuntimeFetching = true;

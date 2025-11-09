@@ -27,4 +27,15 @@ class CategoryModel {
       'childes': childes?.map((e) => e.toJson()).toList(),
     };
   }
+
+  // ========== Safe Getters with Null Handling ==========
+
+  /// Returns the category name, or empty string if null.
+  String get safeName => name ?? '';
+
+  /// Returns the full image URL, or empty string if null.
+  String get safeImageUrl => imageFullUrl ?? '';
+
+  /// Returns the list of sub-categories, or empty list if null.
+  List<CategoryModel> get safeChildes => childes ?? [];
 }

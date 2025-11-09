@@ -23,6 +23,17 @@ class RestaurantModel {
       'avg_rating': rating,
     };
   }
+
+  // ========== Safe Getters with Null Handling ==========
+
+  /// Returns the restaurant name, or empty string if null.
+  String get safeName => name ?? '';
+
+  /// Returns the full logo URL, or empty string if null.
+  String get safeLogoUrl => logoFullUrl ?? '';
+
+  /// Returns the restaurant rating (0-5), or 0.0 if null.
+  double get safeRating => rating ?? 0.0;
 }
 
 class RestaurantsResponse {
