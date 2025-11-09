@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../../core/utils/app_colors.dart';
+import 'diagonal_strikethrough_painter.dart';
 
 class FoodCampaign extends StatelessWidget {
   final ProductModel product;
@@ -17,6 +18,37 @@ class FoodCampaign extends StatelessWidget {
       return '${product.discount?.toInt()}% OFF';
     } else {
       return '\$${product.discount?.toInt()} OFF';
+    }
+  }
+
+  double _calculateFinalPrice() {
+    if (product.price == null) return 0.0;
+    if (product.discount == null || product.discount == 0) {
+      return product.price!;
+    }
+
+    if (product.discountType == 'percent') {
+      // Calculate percentage discount
+      final discountAmount = (product.price! * product.discount!) / 100;
+      return product.price! - discountAmount;
+    } else {
+      // Fixed amount discount
+      return product.price! - product.discount!;
+    }
+  }
+
+  bool _hasDiscount() {
+    return product.discount != null && product.discount! > 0;
+  }
+
+  String _formatPrice(double price) {
+    // Check if the price has decimal part
+    if (price % 1 == 0) {
+      // No decimal part, return without .00
+      return price.toInt().toString();
+    } else {
+      // Has decimal part, return with 2 decimal places
+      return price.toStringAsFixed(2);
     }
   }
 
@@ -77,7 +109,7 @@ class FoodCampaign extends StatelessWidget {
               // Discount Badge Overlay
               if (product.discount != null && product.discount! > 0)
                 Positioned(
-                  top: 8.h,
+                  top: 32.h,
                   left: 8.w,
                   child: Container(
                     padding: EdgeInsets.symmetric(
@@ -86,7 +118,10 @@ class FoodCampaign extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(8.r),
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(8.r),
+                        bottomRight: Radius.circular(8.r),
+                      ),
                     ),
                     child: Text(
                       _getDiscountText(),
@@ -114,10 +149,9 @@ class FoodCampaign extends StatelessWidget {
                   Text(
                     product.name ?? 'Unknown Product',
                     style: TextStyle(
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                      height: 1.3,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF000743),
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -134,7 +168,7 @@ class FoodCampaign extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w500,
-                              color: Colors.grey[700],
+                              color: const Color(0xFF868686),
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -163,13 +197,44 @@ class FoodCampaign extends StatelessWidget {
                     ],
                   ),
                   // Price
-                  Text(
-                    '\$${product.price?.toStringAsFixed(2) ?? '0.00'}',
-                    style: TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Final Price (after discount)
+                      Text(
+                        '\$${_formatPrice(_calculateFinalPrice())}',
+                        style: TextStyle(
+                          color: const Color(0xFF000743),
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      // Original Price with Strikethrough (only show if there's a discount)
+                      if (_hasDiscount()) ...[
+                        SizedBox(width: 6.w),
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            // Original price text
+                            Text(
+                              '\$${product.price != null ? _formatPrice(product.price!) : '0'}',
+                              style: TextStyle(
+                                color: const Color(0xFF868686),
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            // Diagonal strikethrough line
+                            Positioned.fill(
+                              child: CustomPaint(
+                                painter: DiagonalStrikeThroughPainter(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
                   ),
                 ],
               ),

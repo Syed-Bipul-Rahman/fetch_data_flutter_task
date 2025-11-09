@@ -9,11 +9,21 @@ class FoodCard extends StatelessWidget {
   final ProductModel product;
   const FoodCard({super.key, required this.product});
 
+  String _formatPrice(double price) {
+    // Check if the price has decimal part
+    if (price % 1 == 0) {
+      // No decimal part, return without .00
+      return price.toInt().toString();
+    } else {
+      // Has decimal part, return with 2 decimal places
+      return price.toStringAsFixed(2);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       width: 200.w,
-
       margin: EdgeInsets.only(right: 12.w),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -65,11 +75,22 @@ class FoodCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 SizedBox(height: 4.h),
+                Text(
+                  product.restaurantName ?? 'Unknown Product',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF868686),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(height: 4.h),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '\$${product.price?.toStringAsFixed(2) ?? '0.00'}',
+                      '\$${product.price != null ? _formatPrice(product.price!) : '0'}',
                       style: TextStyle(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w700,
