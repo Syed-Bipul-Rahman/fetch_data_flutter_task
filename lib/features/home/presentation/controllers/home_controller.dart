@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/services/connectivity_service.dart';
@@ -102,7 +103,9 @@ class HomeController extends GetxController {
 
   Future<void> loadData({bool forceRefresh = false}) async {
     assert(() {
-      print('🔄 loadData called (forceRefresh: $forceRefresh)');
+      if (kDebugMode) {
+        print('🔄 loadData called (forceRefresh: $forceRefresh)');
+      }
       return true;
     }());
 
@@ -115,7 +118,9 @@ class HomeController extends GetxController {
       _isConnected.value = isOnline;
 
       assert(() {
-        print('   Has cache: $hasCache, Online: $isOnline');
+        if (kDebugMode) {
+          print('   Has cache: $hasCache, Online: $isOnline');
+        }
         return true;
       }());
 
@@ -142,7 +147,9 @@ class HomeController extends GetxController {
           }
           // Otherwise, cache is already showing, just log the error
           assert(() {
-            print('Background refresh failed: $e');
+            if (kDebugMode) {
+              print('Background refresh failed: $e');
+            }
             return true;
           }());
         }
@@ -164,7 +171,9 @@ class HomeController extends GetxController {
         _loadingState.value = LoadingState.loaded;
         // Optionally log the error
         assert(() {
-          print('Error loading data: $e');
+          if (kDebugMode) {
+            print('Error loading data: $e');
+          }
           return true;
         }());
       } else {
@@ -184,12 +193,15 @@ class HomeController extends GetxController {
 
     // Debug logging
     assert(() {
-      print('📦 Loaded from cache:');
-      print('   Banners: ${_banners.length}');
-      print('   Categories: ${_categories.length}');
-      print('   Popular Foods: ${_popularFoods.length}');
-      print('   Campaigns: ${_foodCampaigns.length}');
-      print('   Restaurants: ${_restaurants.length}');
+      if (kDebugMode) {
+        print('📦 Loaded from cache:');
+        print('   Banners: ${_banners.length}');
+        print('   Categories: ${_categories.length}');
+        print('   Popular Foods: ${_popularFoods.length}');
+        print('   Campaigns: ${_foodCampaigns.length}');
+        print('   Restaurants: ${_restaurants.length}');
+      }
+
       return true;
     }());
   }

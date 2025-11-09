@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import '../constants/api_constants.dart';
 
 class ApiService {
@@ -25,7 +26,9 @@ class ApiService {
         onRequest: (options, handler) {
           // Request logging
           assert(() {
-            print('REQUEST[${options.method}] => PATH: ${options.path}');
+            if (kDebugMode) {
+              print('REQUEST[${options.method}] => PATH: ${options.path}');
+            }
             return true;
           }());
           return handler.next(options);
@@ -33,9 +36,11 @@ class ApiService {
         onResponse: (response, handler) {
           // Response logging
           assert(() {
-            print(
-              'RESPONSE[${response.statusCode}] => PATH: ${response.requestOptions.path}',
-            );
+            if (kDebugMode) {
+              print(
+                'RESPONSE[${response.statusCode}] => PATH: ${response.requestOptions.path}',
+              );
+            }
             return true;
           }());
           return handler.next(response);
@@ -43,9 +48,11 @@ class ApiService {
         onError: (error, handler) {
           // Error logging
           assert(() {
-            print(
-              'ERROR[${error.response?.statusCode}] => PATH: ${error.requestOptions.path}',
-            );
+            if (kDebugMode) {
+              print(
+                'ERROR[${error.response?.statusCode}] => PATH: ${error.requestOptions.path}',
+              );
+            }
             return true;
           }());
           return handler.next(error);

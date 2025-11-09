@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
+
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/cache_service.dart';
@@ -189,7 +191,9 @@ class HomeRepository {
           [];
 
       assert(() {
-        print('💾 getCachedBanners: Found ${jsonList.length} items');
+        if (kDebugMode) {
+          print('💾 getCachedBanners: Found ${jsonList.length} items');
+        }
         return true;
       }());
 
@@ -200,7 +204,9 @@ class HomeRepository {
           .toList();
     } catch (e) {
       assert(() {
-        print('❌ Error getting cached banners: $e');
+        if (kDebugMode) {
+          print('❌ Error getting cached banners: $e');
+        }
         return true;
       }());
       return [];
@@ -220,7 +226,9 @@ class HomeRepository {
           .toList();
     } catch (e) {
       assert(() {
-        print('❌ Error getting cached categories: $e');
+        if (kDebugMode) {
+          print('❌ Error getting cached categories: $e');
+        }
         return true;
       }());
       return [];
@@ -240,7 +248,9 @@ class HomeRepository {
           .toList();
     } catch (e) {
       assert(() {
-        print('❌ Error getting cached popular foods: $e');
+        if (kDebugMode) {
+          print('❌ Error getting cached popular foods: $e');
+        }
         return true;
       }());
       return [];
@@ -260,7 +270,9 @@ class HomeRepository {
           .toList();
     } catch (e) {
       assert(() {
-        print('❌ Error getting cached campaigns: $e');
+        if (kDebugMode) {
+          print('❌ Error getting cached campaigns: $e');
+        }
         return true;
       }());
       return [];
@@ -280,7 +292,9 @@ class HomeRepository {
           .toList();
     } catch (e) {
       assert(() {
-        print('❌ Error getting cached restaurants: $e');
+        if (kDebugMode) {
+          print('❌ Error getting cached restaurants: $e');
+        }
         return true;
       }());
       return [];
