@@ -104,20 +104,28 @@ class _BannerCarouselState extends State<BannerCarousel> {
   Widget _buildIndicators() {
     final activeIndex = _currentPage % widget.banners.length;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(
-        widget.banners.length,
-        (index) => AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          width: activeIndex == index ? 12.w : 8.w,
-          height: activeIndex == index ? 12.h : 8.h,
-          margin: EdgeInsets.symmetric(horizontal: 4.w),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: activeIndex == index
-                ? AppColors.primary
-                : const Color(0xFFF8CCAD),
+    return SizedBox(
+      height: 12.h,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(
+          widget.banners.length,
+          (index) => Container(
+            width: 12.w,
+            height: 12.h,
+            margin: EdgeInsets.symmetric(horizontal: 4.w),
+            alignment: Alignment.center,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              width: activeIndex == index ? 12.w : 8.w,
+              height: activeIndex == index ? 12.h : 8.h,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: activeIndex == index
+                    ? AppColors.primary
+                    : const Color(0xFFF8CCAD),
+              ),
+            ),
           ),
         ),
       ),
