@@ -24,7 +24,12 @@ class SectionHeader extends StatelessWidget {
               onPressed: onViewAll,
               child: Text(
                 'View All',
-                style: TextStyle(fontSize: 14.sp, color: AppColors.primary),
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: AppColors.primary,
+                  decoration: TextDecoration.underline,
+                  decorationColor: AppColors.primary,
+                ),
               ),
             ),
         ],
