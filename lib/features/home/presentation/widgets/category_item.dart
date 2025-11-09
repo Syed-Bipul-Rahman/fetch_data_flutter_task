@@ -55,7 +55,11 @@ class CategoryItem extends StatelessWidget {
           SizedBox(height: 8.h),
           Text(
             category.name ?? '',
-            style: TextStyle(fontSize: 12.sp, color: Colors.black87),
+            style: TextStyle(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF000743),
+            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,

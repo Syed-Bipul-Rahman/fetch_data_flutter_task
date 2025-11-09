@@ -58,8 +58,8 @@ class FoodCard extends StatelessWidget {
                   product.name ?? 'Unknown Product',
                   style: TextStyle(
                     fontSize: 16.sp,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF000743),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -72,7 +72,8 @@ class FoodCard extends StatelessWidget {
                       '\$${product.price?.toStringAsFixed(2) ?? '0.00'}',
                       style: TextStyle(
                         fontSize: 16.sp,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF000743),
                       ),
                     ),
 
