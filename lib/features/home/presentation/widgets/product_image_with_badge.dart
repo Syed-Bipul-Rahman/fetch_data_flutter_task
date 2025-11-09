@@ -51,11 +51,7 @@ class ProductImageWithBadge extends StatelessWidget {
                 height: 140.h,
                 width: 120.w,
                 color: Colors.grey[200],
-                child: const Icon(
-                  Icons.fastfood,
-                  color: Colors.grey,
-                  size: 40,
-                ),
+                child: const Icon(Icons.fastfood, color: Colors.grey, size: 40),
               ),
             ),
           ),
@@ -66,10 +62,7 @@ class ProductImageWithBadge extends StatelessWidget {
             top: 32.h,
             left: 8.w,
             child: Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: 8.w,
-                vertical: 8.h,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
               decoration: BoxDecoration(
                 color: AppColors.primary,
                 borderRadius: BorderRadius.only(
