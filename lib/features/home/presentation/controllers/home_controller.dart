@@ -51,8 +51,14 @@ class HomeController extends GetxController {
   bool get hasMoreRestaurants =>
       _restaurants.length < _totalSize && !_isLoadingMore.value;
 
-  // Scroll controller
+  // Scroll controller and app bar visibility
   ScrollController? _scrollController;
+  ScrollController? get scrollController => _scrollController;
+
+  double _lastScrollOffset = 0.0;
+  final RxBool _showAppBar = true.obs;
+  bool get showAppBar => _showAppBar.value;
+
   StreamSubscription<bool>? _connectivitySubscription;
 
   @override
@@ -93,6 +99,29 @@ class HomeController extends GetxController {
     if (_scrollController == null) return;
 
     final position = _scrollController!.position;
+    final currentOffset = position.pixels;
+
+    // Handle app bar visibility based on scroll direction
+    if (currentOffset <= 0) {
+      // At the top - always show app bar
+      _showAppBar.value = true;
+    } else if (currentOffset > 1) {
+      // Scrolled away from top
+      final isScrollingDown = currentOffset < _lastScrollOffset;
+      final isScrollingUp = currentOffset > _lastScrollOffset;
+
+      if (isScrollingUp && _showAppBar.value) {
+        // Scrolling up (content going up, revealing later content) - hide app bar
+        _showAppBar.value = false;
+      } else if (isScrollingDown && !_showAppBar.value) {
+        // Scrolling down (content going down, going back to earlier content) - show app bar
+        _showAppBar.value = true;
+      }
+    }
+
+    _lastScrollOffset = currentOffset;
+
+    // Pagination logic
     if (position.pixels >= position.maxScrollExtent - 200 &&
         !_isLoadingMore.value &&
         hasMoreRestaurants &&

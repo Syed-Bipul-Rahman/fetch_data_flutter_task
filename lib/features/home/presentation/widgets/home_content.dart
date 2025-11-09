@@ -19,9 +19,14 @@ class HomeContent extends StatelessWidget {
     return RefreshIndicator(
       onRefresh: controller.refresh,
       child: CustomScrollView(
+        controller: controller.scrollController,
         slivers: [
           // Search Bar
-          const SliverToBoxAdapter(child: SearchBarWidget()),
+          SliverToBoxAdapter(
+            child: SearchBarWidget(
+              padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
+            ),
+          ),
 
           SliverToBoxAdapter(
             child: BannerCarousel(banners: controller.banners),
