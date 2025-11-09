@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../data/models/product_model.dart';
 
@@ -9,18 +10,28 @@ class FoodCard extends StatelessWidget {
   final ProductModel product;
   const FoodCard({super.key, required this.product});
 
+  String _formatPrice(double price) {
+    // Check if the price has decimal part
+    if (price % 1 == 0) {
+      // No decimal part, return without .00
+      return price.toInt().toString();
+    } else {
+      // Has decimal part, return with 2 decimal places
+      return price.toStringAsFixed(2);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       width: 200.w,
-
       margin: EdgeInsets.only(right: 12.w),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
+            color: Colors.grey.withValues(alpha: 0.3),
             blurRadius: 6,
             offset: const Offset(0, 3),
             spreadRadius: 0,
@@ -55,11 +66,22 @@ class FoodCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  product.name ?? 'Unknown Product',
+                  product.safeName.isEmpty ? AppStrings.unknownProduct : product.safeName,
                   style: TextStyle(
                     fontSize: 16.sp,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textDark,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(height: 4.h),
+                Text(
+                  product.safeRestaurantName.isEmpty ? AppStrings.unknownRestaurant : product.safeRestaurantName,
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textGray,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -69,10 +91,11 @@ class FoodCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '\$${product.price?.toStringAsFixed(2) ?? '0.00'}',
+                      '\$${_formatPrice(product.safePrice)}',
                       style: TextStyle(
                         fontSize: 16.sp,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textDark,
                       ),
                     ),
 

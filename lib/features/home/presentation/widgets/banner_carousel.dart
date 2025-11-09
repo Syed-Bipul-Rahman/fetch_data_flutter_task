@@ -18,14 +18,20 @@ class BannerCarousel extends StatefulWidget {
 class _BannerCarouselState extends State<BannerCarousel> {
   late PageController _pageController;
   Timer? _timer;
-  int _currentPage = 10000;
+  late int _currentPage;
+
+  // Calculate a reasonable middle page for infinite scrolling
+  // Using banner count * 1000 to provide enough pages for smooth infinite scrolling
+  int get _initialPage => widget.banners.isEmpty ? 0 : widget.banners.length * 1000;
+  int get _totalItemCount => widget.banners.isEmpty ? 0 : widget.banners.length * 2000;
 
   @override
   void initState() {
     super.initState();
+    _currentPage = _initialPage;
     _pageController = PageController(
       viewportFraction: 0.75,
-      initialPage: 10000,
+      initialPage: _initialPage,
     );
     _startAutoPlay();
   }
@@ -63,7 +69,7 @@ class _BannerCarouselState extends State<BannerCarousel> {
           height: 130.h,
           child: PageView.builder(
             controller: _pageController,
-            itemCount: 20000,
+            itemCount: _totalItemCount,
             onPageChanged: (index) {
               setState(() {
                 _currentPage = index;
@@ -104,20 +110,28 @@ class _BannerCarouselState extends State<BannerCarousel> {
   Widget _buildIndicators() {
     final activeIndex = _currentPage % widget.banners.length;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(
-        widget.banners.length,
-        (index) => AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          width: activeIndex == index ? 12.w : 8.w,
-          height: activeIndex == index ? 12.h : 8.h,
-          margin: EdgeInsets.symmetric(horizontal: 4.w),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: activeIndex == index
-                ? AppColors.primary
-                : const Color(0xFFF8CCAD),
+    return SizedBox(
+      height: 12.h,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(
+          widget.banners.length,
+          (index) => Container(
+            width: 12.w,
+            height: 12.h,
+            margin: EdgeInsets.symmetric(horizontal: 4.w),
+            alignment: Alignment.center,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              width: activeIndex == index ? 12.w : 8.w,
+              height: activeIndex == index ? 12.h : 8.h,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: activeIndex == index
+                    ? AppColors.primary
+                    : const Color(0xFFF8CCAD),
+              ),
+            ),
           ),
         ),
       ),

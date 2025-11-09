@@ -2,18 +2,29 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../core/exceptions/app_exceptions.dart';
 import '../../../../core/services/connectivity_service.dart';
 import '../../data/models/banner_model.dart';
 import '../../data/models/category_model.dart';
 import '../../data/models/product_model.dart';
 import '../../data/models/restaurant_model.dart';
 import '../../data/repositories/home_repository.dart';
+import '../../domain/services/home_service.dart';
 
 enum LoadingState { initial, loading, loaded, error, offline }
 
 class HomeController extends GetxController {
-  final HomeRepository _repository = HomeRepository();
-  final ConnectivityService _connectivityService = ConnectivityService();
+  final HomeService _homeService;
+  final HomeRepository _repository;
+  final ConnectivityService _connectivityService;
+
+  HomeController({
+    required HomeService homeService,
+    required HomeRepository repository,
+    required ConnectivityService connectivityService,
+  })  : _homeService = homeService,
+        _repository = repository,
+        _connectivityService = connectivityService;
 
   // State management
   final Rx<LoadingState> _loadingState = LoadingState.initial.obs;
@@ -51,8 +62,14 @@ class HomeController extends GetxController {
   bool get hasMoreRestaurants =>
       _restaurants.length < _totalSize && !_isLoadingMore.value;
 
-  // Scroll controller
+  // Scroll controller and app bar visibility
   ScrollController? _scrollController;
+  ScrollController? get scrollController => _scrollController;
+
+  double _lastScrollOffset = 0.0;
+  final RxBool _showAppBar = true.obs;
+  bool get showAppBar => _showAppBar.value;
+
   StreamSubscription<bool>? _connectivitySubscription;
 
   @override
@@ -93,6 +110,29 @@ class HomeController extends GetxController {
     if (_scrollController == null) return;
 
     final position = _scrollController!.position;
+    final currentOffset = position.pixels;
+
+    // Handle app bar visibility based on scroll direction
+    if (currentOffset <= 0) {
+      // At the top - always show app bar
+      _showAppBar.value = true;
+    } else if (currentOffset > 1) {
+      // Scrolled away from top
+      final isScrollingDown = currentOffset < _lastScrollOffset;
+      final isScrollingUp = currentOffset > _lastScrollOffset;
+
+      if (isScrollingUp && _showAppBar.value) {
+        // Scrolling up (content going up, revealing later content) - hide app bar
+        _showAppBar.value = false;
+      } else if (isScrollingDown && !_showAppBar.value) {
+        // Scrolling down (content going down, going back to earlier content) - show app bar
+        _showAppBar.value = true;
+      }
+    }
+
+    _lastScrollOffset = currentOffset;
+
+    // Pagination logic
     if (position.pixels >= position.maxScrollExtent - 200 &&
         !_isLoadingMore.value &&
         hasMoreRestaurants &&
@@ -137,15 +177,59 @@ class HomeController extends GetxController {
       // Try to fetch fresh data if online
       if (isOnline) {
         try {
-          await _repository.fetchAndCacheAll(_currentPage, _limit);
+          await _homeService.fetchAllHomeData(_currentPage, _limit);
           _loadFromCache();
           _loadingState.value = LoadingState.loaded;
+        } on NoInternetException catch (e) {
+          if (!hasCache) {
+            _loadingState.value = LoadingState.offline;
+            _errorMessage.value = 'No internet connection. Please try again.';
+          }
+          assert(() {
+            if (kDebugMode) {
+              print('Internet connection error: $e');
+            }
+            return true;
+          }());
+        } on TimeoutException catch (e) {
+          if (!hasCache) {
+            _loadingState.value = LoadingState.error;
+            _errorMessage.value = 'Request timeout. Please try again.';
+          }
+          assert(() {
+            if (kDebugMode) {
+              print('Timeout error: $e');
+            }
+            return true;
+          }());
+        } on ServerException catch (e) {
+          if (!hasCache) {
+            _loadingState.value = LoadingState.error;
+            _errorMessage.value = 'Server error: ${e.message}';
+          }
+          assert(() {
+            if (kDebugMode) {
+              print('Server error: $e');
+            }
+            return true;
+          }());
+        } on AppException catch (e) {
+          if (!hasCache) {
+            _loadingState.value = LoadingState.error;
+            _errorMessage.value = e.message;
+          }
+          assert(() {
+            if (kDebugMode) {
+              print('App exception: $e');
+            }
+            return true;
+          }());
         } catch (e) {
           // If we have cache, silently fail the background update
           if (!hasCache) {
-            rethrow;
+            _loadingState.value = LoadingState.error;
+            _errorMessage.value = 'An unexpected error occurred';
           }
-          // Otherwise, cache is already showing, just log the error
           assert(() {
             if (kDebugMode) {
               print('Background refresh failed: $e');
@@ -164,22 +248,53 @@ class HomeController extends GetxController {
           _errorMessage.value = 'No internet connection. Please try again.';
         }
       }
+    } on NoInternetException {
+      if (_repository.hasCache()) {
+        _loadFromCache();
+        _loadingState.value = LoadingState.loaded;
+      } else {
+        _loadingState.value = LoadingState.offline;
+        _errorMessage.value = 'No internet connection. Please try again.';
+      }
+    } on TimeoutException {
+      if (_repository.hasCache()) {
+        _loadFromCache();
+        _loadingState.value = LoadingState.loaded;
+      } else {
+        _loadingState.value = LoadingState.error;
+        _errorMessage.value = 'Request timeout. Please try again.';
+      }
+    } on ServerException catch (e) {
+      if (_repository.hasCache()) {
+        _loadFromCache();
+        _loadingState.value = LoadingState.loaded;
+      } else {
+        _loadingState.value = LoadingState.error;
+        _errorMessage.value = 'Server error: ${e.message}';
+      }
+    } on AppException catch (e) {
+      if (_repository.hasCache()) {
+        _loadFromCache();
+        _loadingState.value = LoadingState.loaded;
+      } else {
+        _loadingState.value = LoadingState.error;
+        _errorMessage.value = e.message;
+      }
     } catch (e) {
       // Check if we have cache to fall back to
       if (_repository.hasCache()) {
         _loadFromCache();
         _loadingState.value = LoadingState.loaded;
-        // Optionally log the error
-        assert(() {
-          if (kDebugMode) {
-            print('Error loading data: $e');
-          }
-          return true;
-        }());
       } else {
         _loadingState.value = LoadingState.error;
-        _errorMessage.value = 'Failed to load data: ${e.toString()}';
+        _errorMessage.value = 'An unexpected error occurred';
       }
+      assert(() {
+        if (kDebugMode) {
+          print('Error loading data: $e');
+        }
+        return true;
+      }());
     }
   }
 
@@ -213,7 +328,7 @@ class HomeController extends GetxController {
       _isLoadingMore.value = true;
       _currentPage++;
 
-      final newRestaurants = await _repository.fetchMoreRestaurants(
+      final newRestaurants = await _homeService.fetchMoreRestaurants(
         _currentPage * _limit,
         _limit,
       );
@@ -221,11 +336,43 @@ class HomeController extends GetxController {
       if (newRestaurants.isNotEmpty) {
         _restaurants.addAll(newRestaurants);
       }
+    } on NoInternetException {
+      _currentPage--;
+      Get.snackbar(
+        'Load More Failed',
+        'No internet connection',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 2),
+      );
+    } on TimeoutException {
+      _currentPage--;
+      Get.snackbar(
+        'Load More Failed',
+        'Request timeout. Please try again',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 2),
+      );
+    } on ServerException catch (e) {
+      _currentPage--;
+      Get.snackbar(
+        'Load More Failed',
+        'Server error: ${e.message}',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 2),
+      );
+    } on AppException catch (e) {
+      _currentPage--;
+      Get.snackbar(
+        'Load More Failed',
+        e.message,
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 2),
+      );
     } catch (e) {
       _currentPage--;
       Get.snackbar(
         'Load More Failed',
-        e.toString(),
+        'An unexpected error occurred',
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 2),
       );

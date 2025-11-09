@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'core/utils/app_colors.dart';
-import 'features/home/presentation/controllers/home_controller.dart';
 import 'features/home/presentation/home_page.dart';
 
 class MyApp extends StatelessWidget {
@@ -21,19 +21,21 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(
             primarySwatch: Colors.green,
             scaffoldBackgroundColor: AppColors.background,
-            appBarTheme: const AppBarTheme(
+            textTheme: GoogleFonts.robotoTextTheme(Theme.of(context).textTheme),
+            appBarTheme: AppBarTheme(
               backgroundColor: Colors.white,
               elevation: 0,
-              iconTheme: IconThemeData(color: Colors.black87),
-              titleTextStyle: TextStyle(
+              iconTheme: const IconThemeData(color: Colors.black87),
+              titleTextStyle: GoogleFonts.roboto(
                 color: Colors.black87,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
               ),
             ),
           ),
+          // Bindings are handled by DependencyInjection.init() in main.dart
           initialBinding: BindingsBuilder(() {
-            Get.lazyPut<HomeController>(() => HomeController());
+            // Controllers are already lazy loaded via DI
           }),
           home: child,
         );

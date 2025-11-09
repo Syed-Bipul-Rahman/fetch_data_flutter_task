@@ -19,15 +19,18 @@ class HomeContent extends StatelessWidget {
     return RefreshIndicator(
       onRefresh: controller.refresh,
       child: CustomScrollView(
+        controller: controller.scrollController,
         slivers: [
           // Search Bar
-          const SliverToBoxAdapter(child: SearchBarWidget()),
+          SliverToBoxAdapter(
+            child: SearchBarWidget(
+              padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
+            ),
+          ),
 
           SliverToBoxAdapter(
             child: BannerCarousel(banners: controller.banners),
           ),
-
-          SliverToBoxAdapter(child: SizedBox(height: 24.h)),
 
           // Categories Section
           if (controller.categories.isNotEmpty) ...[
@@ -47,7 +50,6 @@ class HomeContent extends StatelessWidget {
                 ),
               ),
             ),
-            SliverToBoxAdapter(child: SizedBox(height: 24.h)),
           ],
 
           // Popular Food Section
@@ -63,10 +65,7 @@ class HomeContent extends StatelessWidget {
                 height: 229.h,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 16.w,
-                    vertical: 10.w,
-                  ),
+                  padding: EdgeInsets.only(right: 16.w, left: 16.w, bottom: 10),
                   itemCount: controller.popularFoods.length,
                   itemBuilder: (context, index) {
                     return FoodCard(product: controller.popularFoods[index]);
@@ -74,7 +73,6 @@ class HomeContent extends StatelessWidget {
                 ),
               ),
             ),
-            SliverToBoxAdapter(child: SizedBox(height: 24.h)),
           ],
 
           // Food Campaigns Section
@@ -87,9 +85,10 @@ class HomeContent extends StatelessWidget {
                 height: 165.h,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 16.w,
-                    vertical: 10.h,
+                  padding: EdgeInsets.only(
+                    right: 16.w,
+                    bottom: 10.h,
+                    left: 16.w,
                   ),
                   itemCount: controller.foodCampaigns.length,
                   itemBuilder: (context, index) {
@@ -100,7 +99,6 @@ class HomeContent extends StatelessWidget {
                 ),
               ),
             ),
-            SliverToBoxAdapter(child: SizedBox(height: 24.h)),
           ],
 
           // Restaurants Section Header

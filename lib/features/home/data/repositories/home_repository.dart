@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../../../../core/constants/api_constants.dart';
+import '../../../../core/exceptions/app_exceptions.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/cache_service.dart';
 import '../../../../core/services/connectivity_service.dart';
@@ -11,9 +12,15 @@ import '../../data/models/product_model.dart';
 import '../../data/models/restaurant_model.dart';
 
 class HomeRepository {
-  final ApiService _apiService = ApiService();
-  final CacheService _cacheService = CacheService();
-  final ConnectivityService _connectivityService = ConnectivityService();
+  final ApiService _apiService;
+  final CacheService _cacheService;
+
+  HomeRepository({
+    required ApiService apiService,
+    required CacheService cacheService,
+    required ConnectivityService connectivityService, // Keep for DI compatibility
+  })  : _apiService = apiService,
+        _cacheService = cacheService;
 
   // Fetch banners with cache-first strategy
   Future<List<BannerModel>> getBanners() async {
@@ -30,9 +37,15 @@ class HomeRepository {
       );
 
       return banners;
-    } catch (e) {
-      // Return cached data on error
+    } on ParsingException {
+      // If parsing fails, try to return cached data
       return getCachedBanners();
+    } on AppException {
+      // For network/server errors, return cached data
+      return getCachedBanners();
+    } catch (e) {
+      // For any unexpected errors, wrap and return cached data
+      throw UnknownException(e.toString());
     }
   }
 
@@ -49,8 +62,10 @@ class HomeRepository {
       );
 
       return categories;
-    } catch (e) {
+    } on AppException {
       return getCachedCategories();
+    } catch (e) {
+      throw ParsingException(e.toString());
     }
   }
 
@@ -67,8 +82,10 @@ class HomeRepository {
       );
 
       return products;
-    } catch (e) {
+    } on AppException {
       return getCachedPopularFoods();
+    } catch (e) {
+      throw ParsingException(e.toString());
     }
   }
 
@@ -86,8 +103,10 @@ class HomeRepository {
       );
 
       return campaigns;
-    } catch (e) {
+    } on AppException {
       return getCachedFoodCampaigns();
+    } catch (e) {
+      throw ParsingException(e.toString());
     }
   }
 
@@ -113,7 +132,7 @@ class HomeRepository {
       }
 
       return restaurantsResponse;
-    } catch (e) {
+    } on ParsingException {
       if (offset == 0) {
         return RestaurantsResponse(
           data: getCachedRestaurants(),
@@ -121,31 +140,19 @@ class HomeRepository {
         );
       }
       rethrow;
-    }
-  }
-
-  // Fetch all data in parallel (non-blocking)
-  Future<void> fetchAndCacheAll(int currentPage, int limit) async {
-    final isConnected = await _connectivityService.checkConnectivity();
-    if (!isConnected) {
-      throw Exception('No internet connection');
-    }
-
-    try {
-      await Future.wait([
-        getBanners(),
-        getCategories(),
-        getPopularFoods(),
-        getFoodCampaigns(),
-        getRestaurants(currentPage, limit),
-      ]);
-    } catch (e) {
-      // If any request fails but we have cached data, we're still ok
-      if (!hasCache()) {
-        rethrow;
+    } on AppException {
+      if (offset == 0) {
+        return RestaurantsResponse(
+          data: getCachedRestaurants(),
+          totalSize: getCachedRestaurantsTotalSize(),
+        );
       }
+      rethrow;
+    } catch (e) {
+      throw ParsingException(e.toString());
     }
   }
+
 
   // Load more restaurants (for pagination)
   Future<List<RestaurantModel>> fetchMoreRestaurants(
