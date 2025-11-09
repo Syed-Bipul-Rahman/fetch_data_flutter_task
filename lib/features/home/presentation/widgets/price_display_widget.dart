@@ -77,9 +77,7 @@ class PriceDisplayWidget extends StatelessWidget {
               ),
               // Diagonal strikethrough line
               Positioned.fill(
-                child: CustomPaint(
-                  painter: DiagonalStrikeThroughPainter(),
-                ),
+                child: CustomPaint(painter: DiagonalStrikeThroughPainter()),
               ),
             ],
           ),

@@ -90,7 +90,10 @@ class HomePage extends StatelessWidget {
                   ),
                   alignment: Alignment.center,
                   child: SearchBarWidget(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16.w,
+                      vertical: 4.h,
+                    ),
                     showShadow: false,
                   ),
                 ),

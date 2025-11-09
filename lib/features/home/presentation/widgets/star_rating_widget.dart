@@ -36,9 +36,6 @@ class StarRatingWidget extends StatelessWidget {
       );
     }
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: stars,
-    );
+    return Row(mainAxisSize: MainAxisSize.min, children: stars);
   }
 }

@@ -16,9 +16,7 @@ void main() async {
   // Pre-load Roboto font to cache it on first run
   try {
     await Future.wait([
-      GoogleFonts.pendingFonts([
-        GoogleFonts.roboto(),
-      ]),
+      GoogleFonts.pendingFonts([GoogleFonts.roboto()]),
     ]);
   } catch (e) {
     // If offline or font loading fails, app will use fallback fonts

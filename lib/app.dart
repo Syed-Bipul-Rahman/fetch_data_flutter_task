@@ -22,9 +22,7 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(
             primarySwatch: Colors.green,
             scaffoldBackgroundColor: AppColors.background,
-            textTheme: GoogleFonts.robotoTextTheme(
-              Theme.of(context).textTheme,
-            ),
+            textTheme: GoogleFonts.robotoTextTheme(Theme.of(context).textTheme),
             appBarTheme: AppBarTheme(
               backgroundColor: Colors.white,
               elevation: 0,
