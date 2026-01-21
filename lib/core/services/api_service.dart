@@ -84,6 +84,163 @@ class ApiService {
     }
   }
 
+  /// Sends a POST request to the specified [path].
+  ///
+  /// Used for creating new resources on the server.
+  ///
+  /// **Parameters:**
+  /// - [path]: API endpoint path
+  /// - [data]: Request body data (can be Map, FormData, etc.)
+  /// - [queryParameters]: Optional URL query parameters
+  /// - [options]: Optional request configuration
+  /// - [cancelToken]: Optional token to cancel the request
+  ///
+  /// **Example:**
+  /// ```dart
+  /// final response = await apiService.post(
+  ///   '/users',
+  ///   data: {'name': 'John', 'email': 'john@example.com'},
+  /// );
+  /// ```
+  Future<Response> post(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      return await _dio.post(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+        cancelToken: cancelToken,
+      );
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  /// Sends a PUT request to the specified [path].
+  ///
+  /// Used for completely replacing an existing resource on the server.
+  ///
+  /// **Parameters:**
+  /// - [path]: API endpoint path
+  /// - [data]: Complete resource data to replace existing resource
+  /// - [queryParameters]: Optional URL query parameters
+  /// - [options]: Optional request configuration
+  /// - [cancelToken]: Optional token to cancel the request
+  ///
+  /// **Example:**
+  /// ```dart
+  /// final response = await apiService.put(
+  ///   '/users/123',
+  ///   data: {'name': 'John Doe', 'email': 'john@example.com', 'age': 30},
+  /// );
+  /// ```
+  Future<Response> put(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      return await _dio.put(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+        cancelToken: cancelToken,
+      );
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  /// Sends a PATCH request to the specified [path].
+  ///
+  /// Used for partially updating an existing resource on the server.
+  ///
+  /// **Parameters:**
+  /// - [path]: API endpoint path
+  /// - [data]: Partial resource data containing only fields to update
+  /// - [queryParameters]: Optional URL query parameters
+  /// - [options]: Optional request configuration
+  /// - [cancelToken]: Optional token to cancel the request
+  ///
+  /// **Example:**
+  /// ```dart
+  /// final response = await apiService.patch(
+  ///   '/users/123',
+  ///   data: {'email': 'newemail@example.com'}, // Only updating email
+  /// );
+  /// ```
+  Future<Response> patch(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      return await _dio.patch(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+        cancelToken: cancelToken,
+      );
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  /// Sends a DELETE request to the specified [path].
+  ///
+  /// Used for deleting an existing resource from the server.
+  ///
+  /// **Parameters:**
+  /// - [path]: API endpoint path
+  /// - [data]: Optional request body data
+  /// - [queryParameters]: Optional URL query parameters
+  /// - [options]: Optional request configuration
+  /// - [cancelToken]: Optional token to cancel the request
+  ///
+  /// **Example:**
+  /// ```dart
+  /// final response = await apiService.delete('/users/123');
+  /// ```
+  Future<Response> delete(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      return await _dio.delete(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+        cancelToken: cancelToken,
+      );
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
   /// Converts DioException to typed AppException for better error handling.
   ///
   /// This method maps Dio's generic exceptions to our custom exception types,
